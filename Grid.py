@@ -51,9 +51,6 @@ class Grid(object):
                 self.all_positions[y].append(
                     (self.x_positions[x], self.y_positions[y]))
 
-    def get_all_positions(self) -> list[list[tuple[int, int]]]:
-        return self.all_positions
-
     def remove_from_grid(self, ship_num):
         self.locked_ships.pop(str(ship_num))
 
