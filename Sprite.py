@@ -16,8 +16,5 @@ class Sprite(object):
         self.rect.left = mouse_pos[0] - int(self.size[0] / 2)
         self.rect.top = mouse_pos[1] - int(self.size[1] / 2)
 
-    def get_grid(self, grid):
-        self.grid = grid
-
     def draw(self):
         pygame.draw.rect(self.screen, self.color, self.rect)
