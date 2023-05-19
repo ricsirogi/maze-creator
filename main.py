@@ -6,6 +6,7 @@ import PlayerSprite
 import Button
 import json
 import time
+import random
 
 
 class Main():
@@ -36,8 +37,8 @@ class Main():
             50, self.MAZE_START_POINT_BUTTON_POS[1] + self.MAZE_START_POINT_BUTTON_SIZE[1] + 50)
 
         self.GRID_POS = (self.SIDE_MENU_WIDTH, 0)
-        self.GRID_ROW_COLUMN = [18, 18]
-        self.GRID_CELL_SIZE = (50, 50)
+        self.GRID_ROW_COLUMN = [29, 29]
+        self.GRID_CELL_SIZE = (20, 20)
         self.GRID_CELL_COLOR = (255, 255, 255)
         self.GRID_BORDER_COLOR = (0, 0, 0)
         self.GRID_BORDER_SIZE = 1
@@ -54,8 +55,8 @@ class Main():
 
         size_x = self.GRID_ROW_COLUMN[0] * (self.GRID_CELL_SIZE[0] +
                                             self.GRID_BORDER_SIZE) + self.GRID_BORDER_SIZE + self.SIDE_MENU_WIDTH
-        size_y = self.GRID_ROW_COLUMN[1] * (self.GRID_CELL_SIZE[1] +
-                                            self.GRID_BORDER_SIZE) + self.GRID_BORDER_SIZE
+        size_y = self.GRID_ROW_COLUMN[1] * (
+            self.GRID_CELL_SIZE[1] + self.GRID_BORDER_SIZE) + self.GRID_BORDER_SIZE
         self.SIZE = (size_x, size_y)
         self.screen = pygame.display.set_mode(self.SIZE)
 
@@ -107,6 +108,10 @@ class Main():
         self.space_pressed = False
         self.last_player_movement = 0
         self.TIME_BETWEEN_PLAYER_MOVEMENTS = 0.1
+        self.DIRECTIONS = ["u", "r", "d", "l"]
+        self.auto_play = True
+        self.game_over = False
+        self.a_pressed = False
 
     def select_tile(self, new_active_tile):
         self.active = new_active_tile
@@ -124,18 +129,23 @@ class Main():
 
     def player_stuff(self):
         if time.time() - self.last_player_movement > self.TIME_BETWEEN_PLAYER_MOVEMENTS:
-            new_pos = self.player.move()
-            self.last_player_movement = time.time()
-            if new_pos not in self.occupied_wall_positions:
-                self.player.rect.left = new_pos[0]
-                self.player.rect.top = new_pos[1]
-                if new_pos == self.placed_maze_end_point:
+            if not self.game_over:
+                self.player.move(self.auto_play)
+
+                self.last_player_movement = time.time()
+
+                if (self.player.rect.left, self.player.rect.top) == self.maze_end_point_pos:
                     self.win()
 
         self.player.draw()
 
     def win(self):
-        pass
+        self.game_over = True
+        print("Total moves:", self.player.moves)
+        if self.auto_play:
+            print("Tries:", self.player.try_number)
+            self.game_over = False
+            self.player.retry()
 
     def maze_start_point_stuff(self):
         if self.active == "maze_start_point" and self.check_if_cursor_in_window():
@@ -311,7 +321,10 @@ class Main():
             if key_pressed[pygame.K_SPACE]:
                 if not self.space_pressed:
                     if time.time() - self.time_of_last_space_press <= self.MAX_TIME_BETWEEN_SPACE_PRESSES:
-                        self.clear_all()
+                        if self.mode == "edit":
+                            self.clear_all()
+                        elif self.mode == "play":
+                            self.player.retry()
                     self.time_of_last_space_press = time.time()
                     self.space_pressed = True
             else:
@@ -362,15 +375,32 @@ class Main():
                     self.enter_mode = "print"
                     print("Current enter_mode: print")
 
+            if key_pressed[pygame.K_a]:
+                if not self.a_pressed:
+                    if self.auto_play:
+                        self.auto_play = False
+                    else:
+                        self.auto_play = True
+                    print("auto_play is now", self.auto_play)
+                    self.a_pressed = True
+            else:
+                self.a_pressed = False
+
             if key_pressed[pygame.K_p]:
                 if self.mode != "play" and self.placed_maze_start_point is not None:
                     self.mode = "play"
                     print("Current mode: play")
                     self.player.rect.left = self.maze_start_point_pos[0]
                     self.player.rect.top = self.maze_start_point_pos[1]
+                    self.player.wall_positions = self.occupied_wall_positions
+                    self.player.end_position = self.maze_end_point_pos  # type:ignore
+                    self.player.start_position = self.maze_start_point_pos  # type:ignore
+
             elif key_pressed[pygame.K_e]:
                 if self.mode != "edit":
                     self.mode = "edit"
+                    self.game_over = False
+                    self.player.reset_values()
                     print("Current mode: edit")
 
             if self.mode == "edit":
