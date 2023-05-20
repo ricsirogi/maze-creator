@@ -37,8 +37,8 @@ class Main():
             50, self.MAZE_START_POINT_BUTTON_POS[1] + self.MAZE_START_POINT_BUTTON_SIZE[1] + 50)
 
         self.GRID_POS = (self.SIDE_MENU_WIDTH, 0)
-        self.GRID_ROW_COLUMN = [29, 29]
-        self.GRID_CELL_SIZE = (20, 20)
+        self.GRID_ROW_COLUMN = [18, 18]  # ! EDIT THIS TO CHANGE THE NUMBER OF ROWS AND COLUMNS
+        self.GRID_CELL_SIZE = (50, 50)  # ! EDIT THIS TO CHANGE THE WIDTH AND HEIGHT OF EACH CELL
         self.GRID_CELL_COLOR = (255, 255, 255)
         self.GRID_BORDER_COLOR = (0, 0, 0)
         self.GRID_BORDER_SIZE = 1
@@ -103,13 +103,13 @@ class Main():
         self.enter_mode = "print"
         self.mode = "edit"
         self.maze_number = 0
-        self.MAX_TIME_BETWEEN_SPACE_PRESSES = 0.2
+        self.MAX_TIME_BETWEEN_SPACE_PRESSES = 0.3
         self.time_of_last_space_press = 0
         self.space_pressed = False
         self.last_player_movement = 0
         self.TIME_BETWEEN_PLAYER_MOVEMENTS = 0.1
         self.DIRECTIONS = ["u", "r", "d", "l"]
-        self.auto_play = True
+        self.auto_play = False
         self.game_over = False
         self.a_pressed = False
 
